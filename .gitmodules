@@ -1,0 +1,6 @@
+[submodule "flight/micropython-mpu9150"]
+	path = flight/micropython-mpu9150
+	url = https://github.com/turbinenreiter/micropython-mpu9150.git
+[submodule "flight/micropython-bmp180"]
+	path = flight/micropython-bmp180
+	url = https://github.com/turbinenreiter/micropython-bmp180.git
