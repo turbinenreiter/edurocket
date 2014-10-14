@@ -13,8 +13,6 @@ def loadconfig(filename):
         #print(name.strip(), value.strip())
     globals()['ascale'] = (16384, 8192, 4096, 2048)[int(accel_range)]
     globals()['gscale'] = (131, 65.5, 32.8, 16.4)[int(gyro_range)]
-    #print(ascale, accel_range, int(accel_range))
-
 
 def fileparse(filename, line_len):
     with open(filename, 'rb') as infile:
@@ -75,9 +73,9 @@ def B5(UT_raw):
     return B5_raw
 
 def pressure(MSB_raw, LSB_raw, XLSB_raw, oversample_sett, UT_raw):
-    MSB = MSB_raw #struct.unpack('<h', bytes(MSB_raw))[0]
-    LSB = LSB_raw #struct.unpack('<h', bytes(LSB_raw))[0]
-    XLSB = XLSB_raw #struct.unpack('<h', bytes(XLSB_raw))[0]
+    MSB = MSB_raw
+    LSB = LSB_raw
+    XLSB = XLSB_raw
     UP = ((MSB << 16)+(LSB << 8)+XLSB) >> (8-oversample_sett)
     B6 = B5(UT_raw)-4000
     X1 = (B2*(B6**2/2**12))/2**11
@@ -107,23 +105,10 @@ def main(filename):
     loadconfig('../log/config.txt')
     lines = fileparse(filename, 25)
     log = open(filename[:-4]+'.csv', 'w')
-    # old: t_start;uax;uay;uaz;temp_baro;temp_imu;p;h;trigger;ax;ay;az;gx;gy;gz;mx;my;mz;t_end
     log.write('t_start;uax;uay;uaz;ax;ay;az;gx;gy;gz;temp_imu;p;h;trigger\n')
     for line in lines:
         log.write('{};{};{};{};{};{};{};{};{};{};{};{};{};{}\n'.format(*lineparse(line)))
     log.close()
-
-'''
-                log.write(b''.join([struct.pack('I', t_start_ms),
-                                    bytes(accel.filtered_xyz()),
-                                    imu.get_accel_raw(),
-                                    imu.get_gyro_raw(),
-                                    baro.UT_raw,
-                                    baro.MSB_raw,
-                                    baro.LSB_raw,
-                                    baro.XLSB_raw,
-                                    trigger]))
-'''
 
 if __name__ == '__main__':
     main(sys.argv[1])

@@ -1,111 +1,125 @@
-#import matplotlib as mpl
-#mpl.use('Agg')
+import matplotlib as mpl
+mpl.use('WebAgg')
+mpl.rcParams.update({'font.size': 12})
 import numpy as np
 from matplotlib import pyplot as plt
 import sys
 
 def main(filename):
 
-    data1 = np.genfromtxt(filename,delimiter=';',names=True)
+    # read file
+    data = np.genfromtxt(filename,delimiter=';',names=True)
 
-    fig, ((accel1, accel2), (pressure, pressure2)) = plt.subplots(nrows=2, ncols=2, sharex=True)
+    t = data['t_start']-data['t_start'][0]
 
-    uax, uay, uaz = [a for a in (data1['uax'],data1['uay'],data1['uaz'])]
+    uax, uay, uaz = [a for a in (data['uax'],data['uay'],data['uaz'])]
+    h = data['h']
+    trigger = data['trigger']
 
-    trigger = data1['trigger']
+    # analyze
+
+    # max altitude
+    dh_max = max(h)-min(h)
+    t_hmax_i = h.argmax()
+    t_hmax = t[t_hmax_i]
+
+    # parachute trigger
     t_trigger_i = np.where(trigger==255.)[0][0]
-    t_trigger = data1['t_start'][t_trigger_i]
-
-    h = data1['h']
-    #print(max(h), min(h), max(h)-min(h))
-    dmax = h-max(h)
-    t_max = data1['t_start'][h.argmax()]
-
-    accel1.plot(data1['t_start'],data1['ax'], 'g', alpha = 0.2)
-    accel1.plot(data1['t_start'],data1['ay'], 'b', alpha = 0.2)
-    accel1.plot(data1['t_start'],-data1['az'], 'r', alpha = 1)
-    accel1.yaxis.tick_right()
-    accel1.yaxis.set_label_position("right")
-    accel1.set_title('accelerations')
-    accel1.legend(['ax [g]','ay [g]','az [g]']) #'uax','uay','uaz',
-    #accel1.axes.set_xlim([t_max-10,t_max+10])
-    accel1.axhline(color='k')
-    accel1.axvline(t_max, color='k')
-    #accel1.set_xlabel('t [s]')
-    accel1.set_ylabel('a [g]')
-
-    accel2.plot(data1['t_start'],uax, 'b', alpha = 0.2)
-    accel2.plot(data1['t_start'],uay, 'g', alpha = 0.2)
-    accel2.plot(data1['t_start'],uaz, 'r', alpha = 1)
-    #accel2.plot(data1['t_start'],data1['ax'], 'g')
-    #accel2.plot(data1['t_start'],data1['ay'], 'b')
-    #accel2.plot(data1['t_start'],-data1['az'], 'r')
-    accel2.yaxis.tick_right()
-    accel2.yaxis.set_label_position("right")
-    accel2.set_title('uaccelerations')
-    accel2.legend(['uax [g]','uay [g]','uaz [g]'])
-    #accel2.axes.set_xlim([t_max-10,t_max+10])
-    accel2.axhline(color='k')
-    accel2.axvline(t_max, color='k')
-    #accel2.set_xlabel('t [s]')
-    accel2.set_ylabel('a [g]')
-
-    pressure.plot(data1['t_start'],data1['h'])
-    pressure.plot(t_trigger,data1['h'][t_trigger_i], 'r', marker='o')
-    pressure.set_title('height')
-    #pressure.axes.set_xlim([t_max-10,t_max+10])
-    pressure.axhline(max(h), color='k')
-    pressure.axhline(min(h), color='k')
-    pressure.axvline(t_max, color='k')
-    #temp = pressure.twinx()
-    #temp.plot(data1['t_start'],data1['p'], 'b', alpha=0.3) #varios
-    #temp.plot(data1['t_start'],vario, 'r', alpha=0.1) #data1['p']
-    #temp.plot(data1['t_start'],dmax, 'g', alpha=0.1) #data1['p']
-    #temp.plot(data1['t_start'],data1['temp_imu'], 'r')
-    #temp.legend(['p [mbar]'], loc=2)
-    pressure.legend(['h [m]'], loc=4)
-    pressure.set_xlabel('t [s]')
-    pressure.set_ylabel('h [m]')
-    pressure.yaxis.tick_right()
-    pressure.yaxis.set_label_position("right")
-    #temp.set_ylabel('p [mbar]')
-    #, 'temp baro', 'temp imu'])
-
-    pressure2.plot(data1['t_start'],data1['gx'], 'g', alpha=0.2)
-    pressure2.plot(data1['t_start'],data1['gy'], 'b', alpha=0.2)
-    pressure2.plot(data1['t_start'],data1['gz'], 'r', alpha=1)
-    pressure2.axvline(t_max, color='k')
-    #pressure2.axes.set_xlim([t_max-10,t_max+10])
-    pressure2.yaxis.tick_right()
-    pressure2.yaxis.set_label_position("right")
-    pressure2.set_title('angular acceleration')
-    pressure2.legend(['gx', 'gy', 'gz'])
-    pressure2.axhline(color='k')
-    pressure2.set_xlabel('t [s]')
-    pressure2.set_ylabel('ang accel [Hz/s]')
+    t_trigger = t[t_trigger_i]
 
 
+    # plot
 
-    #fff.plot(data1['t'],data1['fff'])
-    #fff.axes.set_ylim([-0.1,1.1])
-    #fff.set_title('freefall')
+    fig, ((accel, uaccel), (altitude, gyro)) = plt.subplots(nrows=2, ncols=2, sharex=True)
+    fig.set_facecolor('white')
 
-    #accel2 = accel1.twinx()
+    # These are the "Tableau 20" colors
+    c = {}
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
+                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
+                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    colornames = ['blue','lblue','orange','lorange','green','lgreen','red','lred',
+                  'purple','lpurple','brown','lbrown','pink','lpink','grey','lgrey',
+                  'seaweed','lseaweed','turqois','lturqois']
+    for i in range(len(tableau20)):
+        r, g, b = tableau20[i]
+        c[colornames[i]] = (r / 255., g / 255., b / 255.)
 
-    #accel2.set_title('accelerations')
+    # accel
+    accel.set_title('accelerations', fontsize=22)
+    accel.plot(t, data['ax'], color=c['lblue'])
+    accel.plot(t, data['ay'], color=c['lred'])
+    accel.plot(t, -data['az'], color=c['green'])
+    accel.legend(['ax','ay','az'], frameon=False)
+    accel.spines['top'].set_visible(False)
+    accel.spines['right'].set_visible(False)
+    accel.spines['bottom'].set_visible(False)
+    accel.tick_params(bottom='off', top='off', right='off')
+    accel.set_ylabel('g', rotation='horizontal')
 
-    #accel2.legend(['ax','ay','az'])
+    accel.plot(t_trigger, -data['az'][t_trigger_i], color=c['red'], marker='o')
 
+    accel.axhline(color='k')
+    accel.axvline(t_hmax, color=c['lturqois'])
 
+    # uaccel
+    uaccel.set_title('uaccelerations', fontsize=22)
+    uaccel.plot(t, uax, color=c['lblue'])
+    uaccel.plot(t, uay, color=c['lred'])
+    uaccel.plot(t, uaz, color=c['green'])
+    uaccel.legend(['uax','uay','uaz'], frameon=False)
+    uaccel.yaxis.tick_right()
+    uaccel.yaxis.set_label_position("right")
+    uaccel.spines['top'].set_visible(False)
+    uaccel.spines['left'].set_visible(False)
+    uaccel.spines['bottom'].set_visible(False)
+    uaccel.tick_params(bottom='off', top='off', right='off')
+    uaccel.set_ylabel('g', rotation='horizontal')
 
-    #accel.spines['right'].set_visible(False)
-    #accel.spines['top'].set_visible(False)
-    #pressure.spines['right'].set_visible(False)
-    #pressure.spines['top'].set_visible(False)
-    #accel.yaxis.set_ticks_position('left')
-    #accel.xaxis.set_ticks_position('bottom')
-    #pressure.yaxis.set_ticks_position('left')
-    #pressure.xaxis.set_ticks_position('bottom')
+    uaccel.plot(t_trigger, uaz[t_trigger_i], color=c['red'], marker='o')
+
+    uaccel.axhline(color='k')
+    uaccel.axvline(t_hmax, color=c['lturqois'])
+
+    # altitude
+    altitude.set_title('altitude', fontsize=22)
+    altitude.plot(t, h, color=c['blue'])
+    altitude.legend(['h'], frameon=False)
+    altitude.spines['top'].set_visible(False)
+    altitude.spines['right'].set_visible(False)
+    altitude.spines['bottom'].set_visible(False)
+    altitude.tick_params(bottom='off', top='off', right='off')
+    altitude.set_ylabel('m', rotation='horizontal')
+    altitude.set_xlabel('s')
+
+    altitude.plot(t_trigger, h[t_trigger_i], color=c['red'], marker='o')
+
+    altitude.axhline(min(h), color='k')
+    altitude.axvline(t_hmax, color=c['lturqois'])
+
+    # gyro
+    gyro.set_title('angular acceleration', fontsize=22)
+    gyro.plot(t, data['gx'], color=c['blue'])
+    gyro.plot(t, data['gy'], color=c['lred'])
+    gyro.plot(t, data['gz'], color=c['green'])
+    gyro.legend(['gx', 'gy', 'gz'], frameon=False)
+    gyro.yaxis.tick_right()
+    gyro.yaxis.set_label_position("right")
+    gyro.spines['top'].set_visible(False)
+    gyro.spines['left'].set_visible(False)
+    gyro.spines['bottom'].set_visible(False)
+    gyro.tick_params(bottom='off', top='off', right='off')
+    gyro.set_ylabel('Hz/s', rotation='horizontal')
+    gyro.set_xlabel('s')
+
+    gyro.plot(t_trigger, data['gz'][t_trigger_i], color=c['red'], marker='o')
+
+    gyro.axhline(color='k')
+    gyro.axvline(t_hmax, color=c['lturqois'])
+
+    # savefig config
     sc = 1
     fig.set_size_inches(16*sc,9*sc)
     plt.tight_layout()
