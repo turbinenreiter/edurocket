@@ -31,7 +31,7 @@ def main():
     accel = pyb.Accel()
     blue = pyb.LED(4)
     switch = pyb.Switch()
-    servo = pyb.Servo(2)
+    cam = pyb.Servo(2)
     pyb.delay(10)
     baro = BMP180('X')
     pyb.delay(10)
@@ -40,7 +40,7 @@ def main():
 
     # settings
     baro.oversample_sett = 3
-    servo.calibration(860, 2160, 1500)
+    #servo.calibration(860, 2160, 1500)
 
     # test i2c
     if len(baro._bmp_i2c.scan()) != 4:
@@ -79,6 +79,9 @@ def main():
             log = open(filename, 'wb')
             i = 0
             trigger = b'\x00'
+            cam.angle(90)
+            pyb.delay(100)
+            cam.angle(0)
             gc.collect()
             t0 = pyb.millis()/1000
             # until switch is pressed again
@@ -109,6 +112,9 @@ def main():
             log.close()                         # close file
             blue.off()                          # blue LED indicates file closed
             print('\nclosed '+filename)
+            cam.angle(90)
+            pyb.delay(100)
+            cam.angle(0)
             pyb.delay(300)                      # delay avoids detection of multiple presses
 
 main()
