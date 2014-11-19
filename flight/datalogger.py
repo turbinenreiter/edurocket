@@ -59,7 +59,7 @@ def main():
     config = open('/sd/log/config.txt', 'w')
     config.write('AC1, AC2, AC3, AC4, AC5, AC6, B1, B2, MB, MC, MD, oversample_sett, accel_range, gyro_range\n')
     con = baro.compvaldump() + [imu.accel_range(), imu.gyro_range()]
-    config.write('{},{},{},{},{},{},{},{},{},{},{},{},{}'.format(*con))
+    config.write('{},{},{},{},{},{},{},{},{},{},{},{},{},{}'.format(*con))
     config.close()
     print('wrote config file')
 
