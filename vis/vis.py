@@ -1,5 +1,5 @@
 import matplotlib as mpl
-mpl.use('WebAgg')
+mpl.use('Agg')  #'WebAgg'
 mpl.rcParams.update({'font.size': 12})
 import numpy as np
 from matplotlib import pyplot as plt
@@ -124,7 +124,7 @@ def main(filename):
     fig.set_size_inches(16*sc,9*sc)
     plt.tight_layout()
     plt.savefig(filename[:-4]+'.png', dpi=120, format='png', transparent=False, frameon=False)
-    plt.show()
+#    plt.show()
 
 if __name__ == "__main__":
     import convert
