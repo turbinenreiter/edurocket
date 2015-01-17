@@ -1,0 +1,5 @@
+AuthType Basic
+AuthName "This page requires login"
+AuthUserFile /var/www/virtual/oeplse/.htuser
+Require valid-user
+Options +Indexes
