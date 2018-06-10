@@ -1,0 +1,2 @@
+AC1, AC2, AC3, AC4, AC5, AC6, B1, B2, MB, MC, MD, oversample_sett, accel_range, gyro_range
+6772,-1012,-14293,32627,25654,17500,6515,33,-32768,-11786,2422,3,3,3

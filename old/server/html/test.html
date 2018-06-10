@@ -1,0 +1,97 @@
+<head> 
+
+    <title>edurocket</title> 
+
+    <script type="text/javascript" src="/upclick-min.js"></script>
+    <link rel="shortcut icon" href="rocket-32.ico" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+
+</head> 
+
+<body id=main> 
+
+    <h1 id=headline>edurocket</h1>
+
+    <div id="content">
+        <ol>
+          <li id=con>Click Upload config and upload config.txt</li>
+          <li id=log>Click Upload log and upload log*.bin</li>
+        </ol>
+        <br><br>
+        <input type="button" id="uploader_config" value="Upload config" class="pure-button">
+        <input type="button" id="uploader" value="Upload log" class="pure-button">
+    </div>
+
+<script type="text/javascript"> 
+
+var element = document.getElementById('uploader');
+
+upclick(
+
+    {
+    element: element, 
+    action: '/uploadhandler.php', 
+
+    onstart: 
+      function(filename) 
+      {
+        document.getElementById('log').style.color = '#01ff70';
+      },
+
+    oncomplete:
+      function(response_data)
+      {
+        pname = response_data;
+        plot(pname);
+      }
+    } 
+);
+
+var element_c = document.getElementById('uploader_config');
+
+upclick(
+
+    {
+    element: element_c, 
+    action: '/uploadhandler_c.php',
+
+    onstart: 
+      function(filename) 
+      {
+        document.getElementById('con').style.color = '#01ff70';
+      },
+
+    oncomplete:
+      function(response_data) 
+      {
+        pname = response_data;
+      }
+    } 
+);
+
+function plot(){
+    var fig = document.getElementById('fig');
+    if (fig == null) {
+        var img = document.createElement("img");
+        img.id = 'fig';
+        img.src = pname;
+        img.width = window.innerWidth;
+        document.getElementById('main').appendChild(img);
+    }
+    else {
+        fig.src=pname;
+        fig.width = window.innerWidth;
+    }
+    document.getElementById('content').remove();
+    document.getElementById('headline').remove();
+
+}
+
+</script> 
+
+
+
+</body> 
+
+</html>
